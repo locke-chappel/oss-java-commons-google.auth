@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "projectname-12345",
+  "private_key_id": "junit_rsa_256",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDHPZ2QU46GCCL7\n/jvgrmZ/DYvI2i6lDYM5mL7hU4ndZuUIloFGyXfa9x9Jsfi20KM/abGvRhv31QDF\nmUPZNYAkMxHo0HjAQ0FwjmcKtei54T6ON3IV2y5kLVNM+BeqHqV4vIyn+44U6Isj\nWy7TSXeTCpVEr5OwMuCPgUBc5kYR2TQARzyc22mS9zpesxQotizC8qzMR85/XX1P\nSts8++Wqq6L/+GXUTPSVwn3ll2Etobm9kcpF5sqNoYszPWbuGuApvkm7qrFk3/G3\n71GMJ/WJxIl2a1k0yBwfUqMN2rl6AFG3BwF2QvY7kavcQk6QbhCZ5LZG98NEFXGg\nd+E7Ep0rAgMBAAECggEAAqZDm6E40nh2OqKhWjYHf+YGt1eLaj95QMFSvH1XZn3R\nSuFxe6b/NIa3wEuhEpFIsnWt2rZUdeG7vmTw3YkUGKcjNFTdXjUmwB/sp9xOaXZg\n1hRPrJG7FrLxmiLscaMxsR7UwgEa3RVQkFpMj5u4/tgTrxOko6Gxkcb2u6WGRgN2\n3NPkuBe2jch94HN/TtlikcQYYAzcQXPSmWuZ4Yf8kKN3DzpgCE2gvWJmK3AfY04X\n0lNXsRC1gwfrVkR9le5mN5D7BIFzHweEaY3/e6+FZPwnU+F3t3CSOp56FeYrHEKI\n49pQrBfC/Mg0sGzE+pMYXqqg0QnDbzcX9wIxqTKNcQKBgQD95kvzBXksPI6XSOdt\n3jhxH29ttlk5LNzC7hWxq1GuNy1wZnq2Z7nTuYRMNgSNEjq81ZgRSUxQphQnzafe\nP/RXBBlXUFVG2sqiqoUiqdJrXHiV35gVXlCSH2Qb62uR1Qwe/2Y7VVkcZ8Mzpbuy\nblB2dn5uxX4ssIRIgS3hhN91OwKBgQDI45A0AUybMMu6v54wizSdMQzTPO5Yt/ge\n6p9DYTxTwsuwRC1E436zShA09wPTPz61G+ueItHTIgcvWUwj8r6nHolPZOF+9f6P\ngjSQNQXDmkMxtNj250XYqvqC6V9vx7hgbYstHR07odAX+P+DzFHnweBV/1Jhj712\npCmjEQ040QKBgF+w+FbzbSPa/vLNq0uhQSyBaIG1BBOkcN+W095Ob051xU5jkURF\n+6dseAwxH637fN/GsLVzJqwOq/IEdIwzFmflR5e80ycNNunv0pWp44BLLbduuebz\n0PIBmr1bEQO5hAP6xhD+rcMi6FMC16b8JJ9BMY2WKWO2c2TQKvagGYgZAoGAFu5r\nEpSnYvux9dJTw2TQj7T+qspExtnRN+4+WdmqokEVMTzHEhsJ5nto2DLuO9n3VYMn\nZTjCTOCQg2YlG+Fkw/znXam9V9nKwiTxzRhQXSCp1O246o5B2dbCm9j57O+Wa2N1\nxKOTJ7Bz6ZihyjCzlMn7yrVHeR2IWhepLRUQNlECgYAFngbo+AlQmekPXQFXOjES\n2hhzL4v4O6lFCicERsmNe3xIO2hGYdkBKUSeFiXlyLBxaYvTsji2pOGG505XWgA/\n8zBqev5IwlsVpKl0pKoGRA8lF8E0E+zDT2N6aExjBaDM2NUxScWEA3DUyv6Mwb46\nP9ywA06QtzHPHhXDcjDnOg==\n-----END PRIVATE KEY-----\n",
+  "client_email": "junit-user@projectname-12345.iam.gserviceaccount.com",
+  "client_id": "111111111111111111111",
+  "auth_uri": "https://localhost/o/oauth2/auth",
+  "token_uri": "https://localhost/token",
+  "auth_provider_x509_cert_url": "https://localhost/oauth2/v1/certs",
+  "client_x509_cert_url": "https://localhost/robot/v1/metadata/x509/junit-user%40projectname-12345.iam.gserviceaccount.com"
+}
