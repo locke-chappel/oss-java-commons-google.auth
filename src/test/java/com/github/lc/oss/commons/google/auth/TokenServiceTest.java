@@ -5,20 +5,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.impl.classic.AbstractHttpClientResponseHandler;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import com.github.lc.oss.commons.testing.AbstractMockTest;
 import com.github.lc.oss.commons.util.IoTools;
 
+@SuppressWarnings("unchecked")
 public class TokenServiceTest extends AbstractMockTest {
     private TokenService service = new TokenService() {
         private CloseableHttpClient client = Mockito.mock(CloseableHttpClient.class);
@@ -57,13 +59,11 @@ public class TokenServiceTest extends AbstractMockTest {
     @Test
     public void test_forCloudFunction_error() {
         try {
-            Mockito.doAnswer(new Answer<CloseableHttpResponse>() {
-                @Override
-                public CloseableHttpResponse answer(InvocationOnMock invocation) throws Throwable {
-                    throw new IOException("Boom!");
-                }
-            }).when(this.service.getClient()).execute(ArgumentMatchers.notNull());
-        } catch (IOException ex) {
+            Mockito.when(this.service.getClient().execute( //
+                    ArgumentMatchers.any(HttpUriRequestBase.class), //
+                    ArgumentMatchers.any(HttpClientResponseHandler.class))). //
+                    thenThrow(new IOException());
+        } catch (IOException e) {
             Assertions.fail("Unexpected exception");
         }
 
@@ -77,70 +77,98 @@ public class TokenServiceTest extends AbstractMockTest {
 
     @Test
     public void test_forCloudFunction_noResponseBody() {
-        CloseableHttpResponse response = Mockito.mock(CloseableHttpResponse.class);
-        StatusLine statusLine = Mockito.mock(StatusLine.class);
-
         try {
-            Mockito.when(this.service.getClient().execute(ArgumentMatchers.notNull())).thenReturn(response);
+            Mockito.when(this.service.getClient().execute( //
+                    ArgumentMatchers.any(HttpUriRequestBase.class), //
+                    ArgumentMatchers.any(HttpClientResponseHandler.class))). //
+                    thenReturn(null);
         } catch (IOException ex) {
             Assertions.fail("Unexpected exception");
         }
-        Mockito.when(response.getStatusLine()).thenReturn(statusLine);
-        Mockito.when(statusLine.getStatusCode()).thenReturn(200);
-        Mockito.when(response.getEntity()).thenReturn(null);
 
         String result = this.service.forCloudFunction(this.getTestIdentity(), "https://localhost/function/name");
         Assertions.assertNull(result);
     }
 
     @Test
-    public void test_forCloudFunction_statusError() {
-        final String json = "{\"error\":\"message\"}";
-
-        CloseableHttpResponse response = Mockito.mock(CloseableHttpResponse.class);
-        StatusLine statusLine = Mockito.mock(StatusLine.class);
-        HttpEntity responseEntity = Mockito.mock(HttpEntity.class);
-        InputStream responseStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
+    public void test_forCloudFunction() {
+        final String token = "token.jwt.sig";
 
         try {
-            Mockito.when(this.service.getClient().execute(ArgumentMatchers.notNull())).thenReturn(response);
-            Mockito.when(responseEntity.getContent()).thenReturn(responseStream);
+            Mockito.when(this.service.getClient().execute( //
+                    ArgumentMatchers.any(HttpUriRequestBase.class), //
+                    ArgumentMatchers.any(HttpClientResponseHandler.class))). //
+                    thenReturn(token);
+
         } catch (IOException ex) {
             Assertions.fail("Unexpected exception");
         }
+
+        String result = this.service.forCloudFunction(this.getTestIdentity(), "https://localhost/function/name");
+        Assertions.assertEquals(token, result);
+    }
+
+    @Test
+    public void test_forCloudFunction_statusError() {
+        final String json = "{\"error\":\"message\"}";
+
+        ClassicHttpResponse response = Mockito.mock(ClassicHttpResponse.class);
+        HttpEntity responseEntity = Mockito.mock(HttpEntity.class);
+
+        Mockito.when(response.getCode()).thenReturn(422);
         Mockito.when(response.getEntity()).thenReturn(responseEntity);
-        Mockito.when(response.getStatusLine()).thenReturn(statusLine);
-        Mockito.when(statusLine.getStatusCode()).thenReturn(422);
+        InputStream responseStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
+        try {
+            Mockito.when(responseEntity.getContent()).thenReturn(responseStream);
+        } catch (UnsupportedOperationException | IOException e) {
+            Assertions.fail("Unexpected exception");
+        }
 
         try {
-            this.service.forCloudFunction(this.getTestIdentity(), "https://localhost/function/name");
+            TokenService.RESPONSE_HANDLER.handleResponse(response);
             Assertions.fail("Expected exception");
+        } catch (HttpException | IOException ex) {
+            Assertions.fail("Unexpected exception");
         } catch (RuntimeException ex) {
             Assertions.assertEquals("Error getting token: " + json, ex.getMessage());
         }
     }
 
     @Test
-    public void test_forCloudFunction() {
-        final String token = "token.jwt.sig";
-
-        CloseableHttpResponse response = Mockito.mock(CloseableHttpResponse.class);
-        StatusLine statusLine = Mockito.mock(StatusLine.class);
+    public void test_parseError() {
         HttpEntity responseEntity = Mockito.mock(HttpEntity.class);
-        InputStream responseStream = new ByteArrayInputStream(token.getBytes(StandardCharsets.UTF_8));
+
+        final IOException cause = new IOException("Boom!");
 
         try {
-            Mockito.when(this.service.getClient().execute(ArgumentMatchers.notNull())).thenReturn(response);
-            Mockito.when(responseEntity.getContent()).thenReturn(responseStream);
-        } catch (IOException ex) {
+            Mockito.when(responseEntity.getContent()).thenThrow(cause);
+        } catch (UnsupportedOperationException | IOException e) {
             Assertions.fail("Unexpected exception");
         }
-        Mockito.when(response.getStatusLine()).thenReturn(statusLine);
-        Mockito.when(statusLine.getStatusCode()).thenReturn(200);
+
+        try {
+            ((AbstractHttpClientResponseHandler<String>) TokenService.RESPONSE_HANDLER).handleEntity(responseEntity);
+            Assertions.fail("Expected exception");
+        } catch (IOException ex) {
+            Assertions.assertSame(cause, ex.getCause());
+        }
+    }
+
+    @Test
+    public void test_parse_valid() {
+        ClassicHttpResponse response = Mockito.mock(ClassicHttpResponse.class);
+        HttpEntity responseEntity = Mockito.mock(HttpEntity.class);
+
+        Mockito.when(response.getCode()).thenReturn(200);
         Mockito.when(response.getEntity()).thenReturn(responseEntity);
 
-        String result = this.service.forCloudFunction(this.getTestIdentity(), "https://localhost/function/name");
-        Assertions.assertEquals(token, result);
+        try {
+            String result = TokenService.RESPONSE_HANDLER.handleResponse(response);
+
+            Assertions.assertNull(result);
+        } catch (HttpException | IOException e) {
+            Assertions.fail("Unexpected exception");
+        }
     }
 
     private String getTestIdentity() {
