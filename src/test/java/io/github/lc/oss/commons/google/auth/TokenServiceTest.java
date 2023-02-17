@@ -1,4 +1,4 @@
-package com.github.lc.oss.commons.google.auth;
+package io.github.lc.oss.commons.google.auth;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -17,8 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
-import com.github.lc.oss.commons.testing.AbstractMockTest;
-import com.github.lc.oss.commons.util.IoTools;
+import io.github.lc.oss.commons.testing.AbstractMockTest;
+import io.github.lc.oss.commons.util.IoTools;
 
 @SuppressWarnings("unchecked")
 public class TokenServiceTest extends AbstractMockTest {

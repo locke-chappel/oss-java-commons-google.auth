@@ -1,4 +1,4 @@
-package com.github.lc.oss.commons.google.auth;
+package io.github.lc.oss.commons.google.auth;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -18,11 +18,11 @@ import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 
-import com.github.lc.oss.commons.google.auth.model.GoogleIdentity;
-import com.github.lc.oss.commons.jwt.Jwt;
-import com.github.lc.oss.commons.jwt.JwtHeader;
-import com.github.lc.oss.commons.signing.Algorithms;
-import com.github.lc.oss.commons.util.CloseableUtil;
+import io.github.lc.oss.commons.google.auth.model.GoogleIdentity;
+import io.github.lc.oss.commons.jwt.Jwt;
+import io.github.lc.oss.commons.jwt.JwtHeader;
+import io.github.lc.oss.commons.signing.Algorithms;
+import io.github.lc.oss.commons.util.CloseableUtil;
 
 public class TokenService {
     static final HttpClientResponseHandler<String> RESPONSE_HANDLER = new AbstractHttpClientResponseHandler<String>() {
@@ -50,12 +50,12 @@ public class TokenService {
      * Based on https://cloud.google.com/functions/docs/securing/authenticating
      */
     public String forCloudFunction(String identityJson, String functionUrl) {
-        if (com.github.lc.oss.commons.jwt.Util.isBlank(identityJson)) {
+        if (io.github.lc.oss.commons.jwt.Util.isBlank(identityJson)) {
             return null;
         }
 
-        GoogleIdentity identity = com.github.lc.oss.commons.jwt.Util.fromJson(identityJson, GoogleIdentity.class);
-        PrivateKey secret = com.github.lc.oss.commons.signing.Util.loadPrivateKeyFromData(identity.getPrivateKey(), "RSA");
+        GoogleIdentity identity = io.github.lc.oss.commons.jwt.Util.fromJson(identityJson, GoogleIdentity.class);
+        PrivateKey secret = io.github.lc.oss.commons.signing.Util.loadPrivateKeyFromData(identity.getPrivateKey(), "RSA");
 
         Long now = this.now() / 1000l;
         Long expires = now + 60;
@@ -72,10 +72,10 @@ public class TokenService {
         jwt.getPayload().setAudience(this.getCloudFunctionTokenUrl());
         jwt.getPayload().put("target_audience", functionUrl);
 
-        byte[] payload = com.github.lc.oss.commons.jwt.Util.toJsonNoSignature(jwt).getBytes(StandardCharsets.UTF_8);
+        byte[] payload = io.github.lc.oss.commons.jwt.Util.toJsonNoSignature(jwt).getBytes(StandardCharsets.UTF_8);
         String sig = jwt.getAlgorithm().getSignature(secret.getEncoded(), payload);
         jwt.setSignature(sig);
-        String token = com.github.lc.oss.commons.jwt.Util.toJson(jwt);
+        String token = io.github.lc.oss.commons.jwt.Util.toJson(jwt);
         String body = "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=";
         body += URLEncoder.encode(token, StandardCharsets.UTF_8);
 

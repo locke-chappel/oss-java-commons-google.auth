@@ -1,4 +1,4 @@
-package com.github.lc.oss.commons.google.auth.model;
+package io.github.lc.oss.commons.google.auth.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
