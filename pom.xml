@@ -12,7 +12,7 @@
     <version>1.0.12</version>
     <name>${project.artifactId}</name>
     <description>A helper lirbary for processing Google Cloud Authentication tokens</description>
-    <url>https://github.com/locke-chappel/oss-commons-google.auth</url>
+    <url>https://github.com/locke-chappel/oss-java-commons-google.auth</url>
     
     <licenses>
         <license>
