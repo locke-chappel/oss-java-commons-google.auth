@@ -16,6 +16,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import io.github.lc.oss.commons.testing.AbstractMockTest;
 import io.github.lc.oss.commons.util.IoTools;
@@ -170,7 +172,52 @@ public class TokenServiceTest extends AbstractMockTest {
             Assertions.fail("Unexpected exception");
         }
     }
+    
+    @Test
+    public void test_responseHandler_closable_nullEntity() {
+    	ClassicHttpResponse response = Mockito.mock(ClassicHttpResponse.class);
+    	HttpEntity entity = null;
+    	
+    	Mockito.when(response.getCode()).thenReturn(400);
+    	Mockito.when(response.getEntity()).thenReturn(entity);
+    	
+    	try {
+    		 TokenService.RESPONSE_HANDLER.handleResponse(response);
+    		Assertions.fail("Expected exception");
+    	} catch (Exception ex) {
+    		Assertions.assertTrue(ex instanceof NullPointerException);
+    		Assertions.assertEquals(HttpEntity.class.getSimpleName(), ex.getMessage());
+		}
+    }
 
+    @Test
+    public void test_responseHandler_closable_closeErrorEntity() {
+    	ClassicHttpResponse response = Mockito.mock(ClassicHttpResponse.class);
+    	HttpEntity entity = Mockito.mock(HttpEntity.class);
+    	
+    	Mockito.when(response.getCode()).thenReturn(400);
+    	Mockito.when(response.getEntity()).thenReturn(entity);
+    	try {
+    	Mockito.doAnswer(new Answer<Void>() {
+			@Override
+			public Void answer(InvocationOnMock arg0) throws Throwable {
+				throw new IOException("Boom!");
+			}
+    	}).when(entity).close();
+    	} catch (Exception ex) {
+			Assertions.fail("Unexpected exception");
+		} 
+    	
+    	try {
+    		 TokenService.RESPONSE_HANDLER.handleResponse(response);
+    		Assertions.fail("Expected exception");
+    	} catch (Exception ex) {
+    		Assertions.assertTrue(ex instanceof IOException);
+    		Assertions.assertEquals("Boom!", ex.getMessage());
+		}
+    }
+
+    
     private String getTestIdentity() {
         return new String(IoTools.readFile("src/test/resources/junit_identity.json"), StandardCharsets.UTF_8);
     }

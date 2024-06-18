@@ -39,8 +39,13 @@ public class TokenService {
         public String handleResponse(final ClassicHttpResponse response) throws IOException {
             int status = response.getCode();
             if (status != 200) {
-            	try (HttpEntity e = response.getEntity()) {
+            	HttpEntity e = response.getEntity();
+            	try  {
             		throw new RuntimeException("Error getting token: " + this.handleEntity(e));	
+            	} finally {
+            		if (e != null) {
+            			e.close();
+            		}
             	}
             }
 
